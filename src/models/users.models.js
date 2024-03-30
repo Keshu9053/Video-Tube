@@ -26,7 +26,7 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String,
-        required: true,
+        required : true
     },
     coverImage: {
         type: String,
@@ -74,7 +74,7 @@ userSchema.methods.generateAccessToken = function() {
 userSchema.methods.generateRefreshToken = function () {
     return jwt.sign(
         {
-            _id : id
+            _id : this._id 
         },
         process.env.REFRESH_TOKEN_SECRET,
         {
