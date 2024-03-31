@@ -19,15 +19,22 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    // console.log(req.files);
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path || '';
+
+    let coverImage;
+    if (coverImageLocalPath) {
+        coverImage = await uploadOnCloudinary(coverImageLocalPath);
+        if (!coverImage) {
+            throw new ApiError(400, "Server is unable to store cover image on Cloudinary");
+        }
+    }
 
     if(!avatarLocalPath) throw new ApiError(400, "Avatar is required");
 
-    // console.log(avatarLocalPath)
     
     const avatar = await uploadOnCloudinary(avatarLocalPath);
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+    // const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
 
     if(!avatar) throw new ApiError(400, "Server is unable to store avatar on cloudinary");
 
@@ -42,11 +49,11 @@ const registerUser = asyncHandler(async (req, res) => {
 
     
     const createdUser =  User.findById(user._id).select( " -password -refreshToken ");
-    console.log(createdUser);
+    
     if(!createdUser) throw new ApiError(500 , "Something went wrong while registering the user");
 
     return res.status(201).json(
-        new ApiResponse(200, createdUser, "User registered Successfully")
+        {message : "Done"}
     );
 })
 
