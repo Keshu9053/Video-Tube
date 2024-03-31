@@ -18,9 +18,16 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(409 , "User already exist");
     }
 
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage?.[0]?.path || '';
 
+    // Avatar Handling
+    const avatarLocalPath = req.files?.avatar[0]?.path;
+    if(!avatarLocalPath) throw new ApiError(400, "Avatar is required");
+    const avatar = await uploadOnCloudinary(avatarLocalPath);    
+    if(!avatar) throw new ApiError(400, "Server is unable to store avatar on cloudinary");
+
+
+    // CoverImage Handling
+    const coverImageLocalPath = req.files?.coverImage?.[0]?.path || '';
     let coverImage;
     if (coverImageLocalPath) {
         coverImage = await uploadOnCloudinary(coverImageLocalPath);
@@ -28,15 +35,6 @@ const registerUser = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Server is unable to store cover image on Cloudinary");
         }
     }
-
-    if(!avatarLocalPath) throw new ApiError(400, "Avatar is required");
-
-    
-    const avatar = await uploadOnCloudinary(avatarLocalPath);
-    // const coverImage = await uploadOnCloudinary(coverImageLocalPath);
-
-
-    if(!avatar) throw new ApiError(400, "Server is unable to store avatar on cloudinary");
 
     const user = User.create({
         fullname,
