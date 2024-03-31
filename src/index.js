@@ -3,7 +3,7 @@ import connectDB from "./db/index.js";
 import app from './app.js'
 
 dotenv.config();
-const port = process.env.PORT;
+const port = process.env.PORT || 4000;
 
 app.on("error",(error) => {
     console.error("MongoDB connection error:", error);
