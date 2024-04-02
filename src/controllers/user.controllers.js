@@ -10,7 +10,7 @@ const generateAccessTokenAndRefreshToken = async(userId) => {
         const accessToken = await user.generateAccessToken();
         const refersToken = await user.generateRefreshToken();
         
-        user.refreshToken = RefersToken;
+        user.refreshToken = refersToken;
         await user.save( { validateBeforeSave : false } );
         return {accessToken, refersToken};
     } catch (error) {
@@ -78,7 +78,8 @@ const login = asyncHandler(async (req,res) => {
 
     // fetching and validation part !!
     const {username,email,password} = req.body;
-    if(!(username || email) && !password) { 
+
+    if(!username && !email) { 
         throw ApiError(400, "All fields are manadatory")
     }
 
@@ -88,6 +89,8 @@ const login = asyncHandler(async (req,res) => {
     if(!user) {
         throw new ApiError(404, "User is not exist")
     }
+
+    console.log(user);
 
      // checking for the password !!
     const isPasswordValid = await user.isPasswordCorrect(password);
@@ -108,8 +111,8 @@ const login = asyncHandler(async (req,res) => {
     
     return res
     .status(200)
-    .cookie("AccessToken",accessToken,options)
-    .cookie("RefresToken",refersToken,options)
+    .cookie("accessToken",accessToken,options)
+    .cookie("refresToken",refersToken,options)
     .json(
         new ApiResponse( 201 , { user : loggedInUser,accessToken,refersToken } ,"Login Successfully")
     )
